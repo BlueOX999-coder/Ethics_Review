@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ethics — NCLEX Study Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#EFF3F2; --card:#FFFFFF; --ink:#132320; --ink-soft:#4A5C58;
+  --rule:#D3DCD9; --rule-soft:#E4EAE8;
+  --right:#146B54; --right-bg:#E3F1EC;
+  --wrong:#9A3227; --wrong-bg:#F8E6E3;
+  --note:#54399B; --note-bg:#EDE8F8;
+  --flagc:#8A6100; --flag-bg:#FBF0D8;
+  --chip:#E6ECEA; --chip-on:#132320; --chip-on-ink:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#0F1615; --card:#18211F; --ink:#E7EDEB; --ink-soft:#9DAEAA;
+  --rule:#2C3A37; --rule-soft:#232E2C;
+  --right:#58C6A5; --right-bg:#123029;
+  --wrong:#E48B80; --wrong-bg:#33201D;
+  --note:#B9A3F0; --note-bg:#241C3B;
+  --flagc:#E0B64A; --flag-bg:#2E2512;
+  --chip:#232E2C; --chip-on:#E7EDEB; --chip-on-ink:#0F1615;
+}}
+:root[data-theme="dark"]{
+  --page:#0F1615; --card:#18211F; --ink:#E7EDEB; --ink-soft:#9DAEAA;
+  --rule:#2C3A37; --rule-soft:#232E2C;
+  --right:#58C6A5; --right-bg:#123029;
+  --wrong:#E48B80; --wrong-bg:#33201D;
+  --note:#B9A3F0; --note-bg:#241C3B;
+  --flagc:#E0B64A; --flag-bg:#2E2512;
+  --chip:#232E2C; --chip-on:#E7EDEB; --chip-on-ink:#0F1615;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.55}
+.wrap{max-width:52rem;margin:0 auto;padding:0 1.15rem 6rem}
+h1,h2,h3{font-family:"Newsreader",Georgia,serif;font-weight:500;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer}
+.hidden{display:none !important}
+
+/* masthead + mode tabs */
+header.top{padding:2.6rem 0 1.1rem}
+header.top h1{font-size:clamp(1.65rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 .4rem;max-width:32ch}
+header.top p{margin:0;color:var(--ink-soft);font-size:.92rem;max-width:60ch}
+.modes{display:flex;gap:.3rem;border-bottom:1px solid var(--rule);margin-top:1.3rem}
+.mode{background:none;border:none;padding:.55rem .9rem;color:var(--ink-soft);font-size:.93rem;
+  font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.mode[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--right)}
+
+/* shared bits */
+.chips{display:flex;gap:.35rem;flex-wrap:wrap}
+.chip{background:var(--chip);color:var(--ink);border:none;border-radius:2rem;
+  padding:.3rem .72rem;font-size:.8rem;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
+.btn{background:var(--ink);color:var(--card);border:none;border-radius:.4rem;
+  padding:.5rem 1.05rem;font-size:.9rem;font-weight:500}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.btn.small{padding:.3rem .7rem;font-size:.82rem}
+select,input[type=number]{font:inherit;font-size:.88rem;color:var(--ink);background:var(--card);
+  border:1px solid var(--rule);border-radius:.35rem;padding:.32rem .45rem}
+.toolbar{position:sticky;top:0;z-index:20;background:var(--page);border-bottom:1px solid var(--rule);
+  padding:.7rem 0;display:flex;flex-wrap:wrap;gap:.5rem .6rem;align-items:center}
+.toolbar label{font-size:.8rem;color:var(--ink-soft)}
+select.jump{max-width:min(21rem,100%)}
+.tally{margin-left:auto;font-size:.82rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.tally b{color:var(--ink);font-weight:600}
+
+/* question card */
+section.slide{padding-top:2.4rem}
+section.slide>h2{font-size:1.3rem;margin:0 0 .1rem}
+section.slide>.meta{font-size:.78rem;color:var(--ink-soft);margin:0 0 1rem}
+article.q{background:var(--card);border:1px solid var(--rule-soft);border-radius:.55rem;
+  padding:1.1rem 1.15rem 1.15rem;margin-bottom:.85rem}
+.qhead{display:flex;gap:.55rem;align-items:baseline;margin-bottom:.5rem;flex-wrap:wrap}
+.qnum{font-size:.78rem;font-weight:600;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.qtype{font-size:.7rem;font-weight:600;color:var(--ink-soft);border:1px solid var(--rule);
+  border-radius:.3rem;padding:.06rem .38rem}
+.qslide{font-size:.7rem;color:var(--ink-soft)}
+.stem{font-family:"Newsreader",Georgia,serif;font-size:1.09rem;line-height:1.45;margin:0 0 .8rem;max-width:64ch}
+ul.opts{list-style:none;margin:0 0 .8rem;padding:0;display:flex;flex-direction:column;gap:.3rem}
+.opt{display:flex;gap:.6rem;align-items:flex-start;width:100%;text-align:left;background:transparent;
+  border:1px solid var(--rule-soft);border-radius:.4rem;padding:.5rem .65rem;color:var(--ink);
+  font-size:.94rem;line-height:1.45}
+.opt:hover:not(:disabled){border-color:var(--rule)}
+.opt:focus-visible{outline:2px solid var(--right);outline-offset:1px}
+.opt .box{flex:none;width:1.15rem;height:1.15rem;margin-top:.12rem;border:1px solid var(--rule);
+  border-radius:.25rem;display:grid;place-items:center;font-size:.72rem;font-weight:600;color:var(--ink-soft)}
+.opt.round .box{border-radius:50%}
+.opt[aria-pressed="true"]{border-color:var(--ink);background:var(--chip)}
+.opt[aria-pressed="true"] .box{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.opt.correct{border-color:var(--right);background:var(--right-bg)}
+.opt.correct .box{background:var(--right);border-color:var(--right);color:var(--card)}
+.opt.missed{border-color:var(--right);border-style:dashed}
+.opt.incorrect{border-color:var(--wrong);background:var(--wrong-bg)}
+.opt.incorrect .box{background:var(--wrong);border-color:var(--wrong);color:var(--card)}
+.opt:disabled{cursor:default;opacity:1}
+.bank{border:1px dashed var(--rule);border-radius:.4rem;padding:.6rem .75rem;margin:0 0 .8rem;font-size:.9rem}
+.bank ol{margin:.25rem 0 0;padding-left:1.35rem}
+.bank .lbl{font-size:.78rem;color:var(--ink-soft)}
+.pairs{display:flex;flex-direction:column;gap:.45rem;margin:0 0 .8rem}
+.pair{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.pair .prompt{flex:1 1 12rem;font-size:.94rem}
+.pair .verdict{font-size:.82rem;font-weight:600}
+.pair.ok .verdict{color:var(--right)}
+.pair.no .verdict{color:var(--wrong)}
+.rat{margin-top:.8rem;border-top:1px solid var(--rule-soft);padding-top:.7rem;font-size:.92rem;
+  color:var(--ink-soft);max-width:66ch}
+.rat .ans{color:var(--ink);font-weight:600;display:block;margin-bottom:.2rem}
+.note{margin-top:.7rem;border-left:3px solid var(--note);background:var(--note-bg);
+  padding:.55rem .75rem;border-radius:0 .35rem .35rem 0;font-size:.88rem;max-width:66ch}
+.note .t{color:var(--note);font-weight:600}
+
+/* exam setup */
+.panel{background:var(--card);border:1px solid var(--rule-soft);border-radius:.55rem;
+  padding:1.15rem 1.2rem;margin:1.6rem 0}
+.panel h2{font-size:1.25rem;margin:0 0 .3rem}
+.panel .sub{color:var(--ink-soft);font-size:.9rem;margin:0 0 1.1rem;max-width:60ch}
+.field{margin-bottom:1.6rem}
+.field>.h,.panel>.h{font-size:1rem;font-weight:600;margin-bottom:.15rem}
+.panel>.h{margin:1.3rem 0 .2rem;font-size:.88rem}
+main>h2{font-size:1.4rem;margin:2.4rem 0 .15rem}
+.field>.d{font-size:.84rem;color:var(--ink-soft);margin-bottom:.6rem;max-width:58ch}
+.choices{display:flex;flex-direction:column;gap:.45rem}
+.choice{display:flex;gap:.7rem;align-items:flex-start;width:100%;text-align:left;
+  background:transparent;border:1px solid var(--rule);border-radius:.45rem;
+  padding:.7rem .85rem;color:var(--ink);font-size:.95rem}
+.choice:hover:not(:disabled){border-color:var(--ink-soft)}
+.choice:focus-visible{outline:2px solid var(--right);outline-offset:1px}
+.choice[aria-pressed="true"]{border-color:var(--right);background:var(--right-bg)}
+.choice .dot{flex:none;width:1.1rem;height:1.1rem;margin-top:.2rem;border-radius:50%;
+  border:1px solid var(--rule);display:grid;place-items:center}
+.choice[aria-pressed="true"] .dot{border-color:var(--right)}
+.choice[aria-pressed="true"] .dot::after{content:"";width:.55rem;height:.55rem;
+  border-radius:50%;background:var(--right)}
+.choice .t{font-weight:500}
+.choice .s{display:block;font-size:.83rem;color:var(--ink-soft);font-weight:400;margin-top:.1rem}
+.choice:disabled{opacity:.5;cursor:not-allowed}
+.picker{margin:.5rem 0 .1rem 1.8rem}
+.picker select{max-width:min(26rem,100%);width:100%}
+.sizes{display:flex;gap:.4rem;flex-wrap:wrap}
+.size{flex:1 1 4.5rem;min-width:4rem;background:transparent;border:1px solid var(--rule);
+  border-radius:.45rem;padding:.65rem .4rem;text-align:center;font-weight:500;color:var(--ink);font-size:.95rem}
+.size:hover:not([aria-pressed="true"]){border-color:var(--ink-soft)}
+.size[aria-pressed="true"]{border-color:var(--right);background:var(--right-bg);color:var(--right)}
+label.cb{display:flex;gap:.5rem;align-items:flex-start;font-size:.9rem;margin:.35rem 0}
+input[type=checkbox]{margin:.28rem 0 0;accent-color:var(--right);width:1rem;height:1rem;flex:none}
+details.more{margin-top:.4rem;border-top:1px solid var(--rule-soft);padding-top:.9rem}
+details.more summary{font-size:.86rem;color:var(--ink-soft);cursor:pointer;width:fit-content}
+details.more[open] summary{margin-bottom:.7rem}
+.startbar{border-top:1px solid var(--rule);margin-top:1.3rem;padding-top:1.1rem}
+.startbar .btn{padding:.6rem 1.5rem;font-size:.95rem}
+.poolinfo{font-size:.85rem;color:var(--ink-soft);margin-top:.6rem;max-width:56ch}
+.poolinfo b{color:var(--ink)}
+.warn{color:var(--flagc);font-size:.84rem;background:var(--flag-bg);border-radius:.35rem;
+  padding:.45rem .65rem;margin-top:.6rem;max-width:56ch}
+.poolbar{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-top:1.2rem}
+
+/* exam runner */
+.examtop{position:sticky;top:0;z-index:20;background:var(--page);border-bottom:1px solid var(--rule);
+  padding:.65rem 0;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.prog{flex:1 1 8rem;height:.32rem;background:var(--rule-soft);border-radius:2rem;overflow:hidden;min-width:6rem}
+.prog i{display:block;height:100%;background:var(--right);width:0}
+.examtop .pos{font-size:.84rem;color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.timer{font-size:.84rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.navgrid{display:flex;flex-wrap:wrap;gap:.25rem;margin:1.2rem 0}
+.navbtn{width:2rem;height:2rem;border:1px solid var(--rule);background:var(--card);border-radius:.3rem;
+  font-size:.76rem;color:var(--ink-soft);font-variant-numeric:tabular-nums;padding:0}
+.navbtn.done{background:var(--chip);color:var(--ink);border-color:var(--rule)}
+.navbtn.flag{border-color:var(--flagc);color:var(--flagc)}
+.navbtn.here{outline:2px solid var(--right);outline-offset:1px}
+.navbtn.ok{background:var(--right-bg);border-color:var(--right);color:var(--right)}
+.navbtn.bad{background:var(--wrong-bg);border-color:var(--wrong);color:var(--wrong)}
+.runnav{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:1rem}
+.runnav .sp{margin-left:auto}
+
+/* results */
+.scorebig{font-family:"Newsreader",Georgia,serif;font-size:3.4rem;line-height:1;margin:.2rem 0 .1rem}
+.scoresub{color:var(--ink-soft);font-size:.95rem;margin-bottom:1.2rem}
+table.bd{width:100%;border-collapse:collapse;font-size:.88rem;margin:.4rem 0 0}
+table.bd th,table.bd td{text-align:left;padding:.35rem .5rem;border-bottom:1px solid var(--rule-soft)}
+table.bd th{font-size:.78rem;color:var(--ink-soft);font-weight:600}
+table.bd td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scroll{overflow-x:auto}
+.gridwrap{overflow-x:auto;margin:.6rem 0}
+table.matrix{border-collapse:collapse;width:100%;font-size:.92rem}
+table.matrix th,table.matrix td{border:1px solid var(--rule);padding:.4rem .55rem}
+table.matrix th{font-size:.82rem;color:var(--ink-soft);font-weight:600;text-align:left}
+table.matrix th.col{text-align:center;width:8.5rem}
+table.matrix td.rowlab{text-align:left}
+table.matrix td.cell{text-align:center}
+.gbox{width:1.6rem;height:1.6rem;line-height:1;border:1px solid var(--rule);border-radius:.25rem;
+  background:var(--card);color:var(--ink);font-size:.95rem;cursor:pointer;padding:0}
+.gbox.on{border-color:var(--ink);background:var(--chip);font-weight:700}
+.gbox.correct{background:var(--right-bg);border-color:var(--right);color:var(--right)}
+.gbox.missed{background:var(--card);border-color:var(--right);color:var(--right);border-style:dashed}
+.gbox.incorrect{background:var(--wrong-bg);border-color:var(--wrong);color:var(--wrong)}
+.gbox:disabled{cursor:default}
+.glossary{margin-top:.6rem}
+.gentry{padding:.6rem 0;border-bottom:1px solid var(--rule-soft)}
+.gterm{font-weight:650;font-size:.98rem}
+.gdef{color:var(--ink-soft);font-size:.92rem;margin-top:.15rem;max-width:68ch}
+.toolbar input[type=search]{font:inherit;padding:.35rem .5rem;border:1px solid var(--rule);
+  border-radius:.4rem;background:var(--card);color:var(--ink);min-width:14rem}
+p.lede{max-width:70ch}
+footer.end{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);
+  font-size:.84rem;color:var(--ink-soft);max-width:62ch}
+footer.end button{background:none;border:none;color:var(--ink-soft);text-decoration:underline;
+  padding:0;font-size:inherit}
+@media (prefers-reduced-motion: no-preference){
+  .rat,.note{animation:rise .2s ease-out}
+  @keyframes rise{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+  .prog i{transition:width .25s ease}
+}
+@media (max-width:30rem){
+  .tally{margin-left:0;width:100%}
+  .stem{font-size:1.04rem}
+  .scorebig{font-size:2.8rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Ethics</h1>
+  <p><b id="total"></b> questions built from the Ethics lecture, as multiple choice, select all that apply, matching and matrix grid. Study by section, build yourself a custom exam, or drill the ANA provisions and the patient bill of rights.</p>
+  <div class="modes" role="tablist">
+    <button class="mode" role="tab" data-mode="study" aria-selected="true">Study by section</button>
+    <button class="mode" role="tab" data-mode="exam" aria-selected="false">Take a practice exam</button>
+    <button class="mode" role="tab" data-mode="terms" aria-selected="false">ANA Code of Ethics</button>
+    <button class="mode" role="tab" data-mode="dims" aria-selected="false">Patient Bill of Rights</button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer class="end">
+  Built from the <em>Ethics</em> lecture slides and speaker notes.
+  Your exam history is saved in this browser only &mdash; nothing is uploaded, and each person using this
+  link has their own separate history. <button id="wipe">Clear my history</button>
+</footer>
+
+</div>
+<script>
+const QUESTIONS = [{"s": 1, "t": "mc", "q": "What is ethics?", "o": ["Private, personal standards of what is right and wrong in conduct and character", "Standards of right and wrong that influence human behavior, in terms of rights, obligations and fairness", "Deeply held beliefs and principles that guide an individual's behaviors and attitudes", "An interpretation or conclusion that a person accepts as true"], "a": [1], "r": "Ethics refers to the standards of right and wrong that influence human behavior, usually in terms of rights, obligations, benefits to society, fairness or specific virtues. They are the rules of conduct recognized in respect to a particular group or culture.", "id": "s1-1"}, {"s": 1, "t": "mc", "q": "What is morality?", "o": ["Standards of conduct recognized by a profession or culture", "Private, personal standards of what is right and wrong in conduct, character and attitude", "Deeply held principles that provide a framework for what is desirable", "The inherent worth and uniqueness of individuals and populations"], "a": [1], "r": "Morality refers to private, personal standards of what is right and wrong in conduct, character and attitude. Moral development begins in infancy and continues throughout life.", "id": "s1-2"}, {"s": 1, "t": "mc", "q": "How do ethics and morals differ?", "o": ["Ethics are personal standards of conduct and morals are the professional ones", "Ethics are influenced by an external source; morals are guiding principles picked up over a lifetime", "Ethics apply only to nurses in practice, while morals apply to everyone in society", "Ethics are legally enforceable in court, while morals carry no legal weight at all"], "a": [1], "r": "Ethics is a system influenced by an external source: rules of conduct recognized in respect to a particular group, institution, profession or culture. Morals are guiding principles in one's life that have been picked up through their lifetime.", "id": "s1-3"}, {"s": 1, "t": "mc", "q": "A nurse tells a patient she will call the physician about his pain, and she does so promptly. Which principle is she demonstrating?", "o": ["Veracity", "Fidelity", "Beneficence", "Justice"], "a": [1], "r": "Fidelity is the responsibility to be loyal and truthful in relationships and to fulfill promises, such as coming back with pain medication or calling the physician when you say you are going to.", "id": "s1-4"}, {"s": 1, "t": "mc", "q": "A nurse gives a postoperative patient an injection for pain. How does this illustrate nonmaleficence?", "o": ["The injection carries no risk at all to the patient when given correctly", "The risks of discomfort and side effects are outweighed by the goal of relieving suffering", "The physician who ordered it rather than the nurse is responsible for the risk", "The patient has already waived their right to be informed of any risks"], "a": [1], "r": "The risks of discomfort from the injection and side effects from the medication are typically outweighed by the goal of relieving the patient's suffering. Before the action, the patient is given information about potential benefits and risks and decides whether to accept the treatment.", "id": "s1-5"}, {"s": 1, "t": "mc", "q": "What is utility, or utilitarianism?", "o": ["Treating every patient exactly the same way regardless of their individual need", "Ensuring the most good is provided to the greatest number of people while causing harm to the least number", "Doing what is best for the individual patient who is in front of you right now", "Respecting the right of each patient to make decisions about their own care"], "a": [1], "r": "Utility, or utilitarianism, ensures the most good is provided to the greatest number of people while causing harm to the least number of individuals.", "id": "s1-6"}, {"s": 1, "t": "mc", "q": "A hospital has one ventilator left and must choose between a fit 20-year-old and a 75-year-old with heart disease. A utilitarian would give it to the 20-year-old for which reason?", "o": ["The younger patient has a legal right to the resource ahead of the older one", "Welfare is maximized because they will likely live longer and contribute more to society", "The older patient has already received a fair share of healthcare resources", "The younger patient's family is more likely to consent to the treatment"], "a": [1], "r": "Utilitarians want to maximize the overall amount of happiness or welfare. They would argue that welfare is maximized by giving the last ventilator to the 20-year-old, because all things being equal they will live longer and may contribute more to society over a longer period.", "id": "s1-7"}, {"s": 1, "t": "sata", "q": "Which practices does veracity underlie? Select all that apply.", "o": ["Giving patients complete information before obtaining informed consent", "Timely and accurate documentation of nursing interventions", "Weighing risk of harm against potential benefit", "Allocating scarce resources fairly", "Respecting the patient's right to self-determination"], "a": [0, 1], "r": "Veracity is the principle that underlies the need for healthcare providers to give patients complete information before obtaining informed consent for any procedure, and it is also one of several principles behind timely and accurate documentation of nursing interventions.", "id": "s1-8"}, {"s": 1, "t": "match", "q": "Match each ethical principle to its meaning.", "p": [["Autonomy", "The right to self-determination"], ["Nonmaleficence", "Do no harm and safeguard the patient"], ["Beneficence", "Doing what is best for the patient"], ["Justice", "Treating all patients fairly"], ["Veracity", "Being completely open and honest with the patient"]], "r": "Autonomy is the right to self-determination, nonmaleficence is doing no harm, beneficence is doing what is best for the patient, justice is treating all patients fairly, and veracity is truthfulness.", "id": "s1-9"}, {"s": 1, "t": "match", "q": "Match each term to its meaning.", "p": [["Fidelity", "Loyalty, truthfulness and the fulfillment of promises"], ["Integrity", "Acting in accordance with a code of ethics and accepted standards"], ["Human dignity", "The inherent worth and uniqueness of individuals"], ["Beliefs", "An interpretation or conclusion one accepts as true"], ["Values", "Deeply held beliefs and principles that guide behavior"]], "r": "Fidelity is loyalty and keeping promises, integrity is acting in line with a code of ethics, human dignity is inherent worth and uniqueness, a belief is a conclusion accepted as true, and values are deeply held principles guiding behavior.", "id": "s1-10"}, {"s": 1, "t": "mc", "q": "A nurse gives equal time and care to each of her assigned patients despite a heavy workload. Which principle is she demonstrating?", "o": ["Beneficence", "Justice", "Fidelity", "Veracity"], "a": [1], "r": "Nurses encounter the principle of justice any time they are challenged to give equal time and care to each patient. Justice is treating all patients fairly and in accordance with honor, standards or law.", "id": "s1-11"}, {"s": 1, "t": "mc", "q": "A patient asks the nurse directly whether his cancer has spread. His wife has asked staff not to tell him. Which principle is in conflict for the nurse?", "o": ["Fidelity", "Veracity", "Justice", "Nonmaleficence"], "a": [1], "r": "Veracity can be a particularly challenging principle for nurses, who may be faced with providing patients with complete information about their illness even though family members or significant others want the information withheld.", "id": "s1-12"}, {"s": 2, "t": "sata", "q": "Which are the three moral frameworks or theories? Select all that apply.", "o": ["Consequence-based, or teleologic", "Principles-based, or deontologic", "Relationship-based, or caring", "Virtue-based, or characterologic", "Rights-based, or legalistic"], "a": [0, 1, 2], "r": "The three moral frameworks are consequence-based (teleologic) theories, principles-based (deontologic) theories, and relationship-based (caring) theories.", "id": "s2-1"}, {"s": 2, "t": "mc", "q": "Which other concept are consequence-based theories related to?", "o": ["Deontology", "Utilitarianism", "Fidelity", "Human dignity"], "a": [1], "r": "Consequence-based theories are related to utilitarianism: moral acts are those that work to ensure the most good is provided to the greatest number of people while causing harm to the least number of individuals.", "id": "s2-2"}, {"s": 2, "t": "match", "q": "Match each moral framework to what it focuses on.", "p": [["Consequence-based", "Whether the outcome is good, and whether the good outweighs the bad"], ["Principles-based", "What is right, regardless of the result"], ["Relationship-based", "Maintaining relationships and caring for all parties"]], "r": "Consequence-based (teleologic) theories judge by the outcome and are related to utilitarianism. Principles-based (deontologic) theories judge by what is right, not the result. Relationship-based (caring) theories find moral significance in maintaining relationships.", "id": "s2-3"}, {"s": 2, "t": "mc", "q": "A hospital must give its last ventilator to either a fit 20-year-old or a 75-year-old with heart disease, and chooses the 20-year-old to maximize overall welfare. Which theory is being used?", "o": ["Consequence-based", "Principles-based", "Relationship-based", "None of the three"], "a": [0], "r": "This is the consequence-based, or utilitarian, example. Utilitarians want to maximize the overall amount of happiness or welfare, and would argue welfare is maximized by giving the ventilator to the 20-year-old.", "id": "s2-4"}, {"s": 2, "t": "mc", "q": "A patient's spouse instructs the nurse not to tell him he is dying, but the nurse has a general obligation to be truthful and does not want to lie. Which theory is the nurse using?", "o": ["Consequence-based", "Principles-based", "Relationship-based", "None of the three"], "a": [1], "r": "This is the principles-based example. Nurses may use this theory when the wishes of a family are not in alignment with what the nurse perceives as right or correct, such as a general obligation to be truthful with patients.", "id": "s2-5"}, {"s": 2, "t": "mc", "q": "In the same situation, the nurse asks the spouse her reasoning and explains this may cause the patient to lose trust and may affect their marriage. Which theory is the nurse using?", "o": ["Consequence-based", "Principles-based", "Relationship-based", "None of the three"], "a": [2], "r": "This is the relationship-based example: the nurse takes all parties' feelings into consideration, with the goal of maintaining relationships and caring for all parties involved.", "id": "s2-6"}, {"s": 3, "t": "mc", "q": "An 18-year-old has relapsed with cancer a third time and refuses a painful trial with little chance of remission, while the parents want it started. Which conclusion reflects consequence-based theory?", "o": ["The teen has the right to make his own decision about whether to have this treatment", "It is not fair of the parents to make him go through treatment that causes more pain and probably will not work", "The nurses should help the parents understand what the teen is feeling about the trial", "The parents' wishes should be followed, because they remain the legal decision makers"], "a": [1], "r": "Using consequences-based theory, the nurses approach the issue with the belief that the treatment will cause their patient more pain and has little probability of working, so it is not fair of the parents to make the patient go through the treatment.", "id": "s3-1"}, {"s": 3, "t": "mc", "q": "Which conclusion in the teen cancer case reflects principles-based theory?", "o": ["The treatment will cause more pain and probably will not work", "The teen has the right to make his own decision about his treatment", "The nurses should help the parents understand what the teen is feeling", "The parents will eventually feel guilty about their decision"], "a": [1], "r": "Principles-based theory, which holds that an action is determined by what is right and not by the result, supports the nurses' belief that the teen has the right to make his own decision about his treatment.", "id": "s3-2"}, {"s": 3, "t": "mc", "q": "Which action in the teen cancer case reflects relationship-based theory?", "o": ["Supporting the teen's refusal, because he has the right to decide for himself", "Helping the parents understand what the teen is feeling and emphasizing their desire to meet their child's needs", "Calculating whether the benefit of the trial outweighs the pain it will cause", "Asking the ethics committee to review the case and make the final decision"], "a": [1], "r": "Relationship-based theory suggests that the nurses help the parents understand what the teen is feeling and emphasize the desire the parents have to meet their child's needs, which the teen has expressed in a desire to refuse the treatment.", "id": "s3-3"}, {"s": 3, "t": "mc", "q": "What distinguishes the relationship-based approach in this case from the other two?", "o": ["It focuses only on the teen's legal rights", "It works to maintain the relationships and care for all parties involved", "It weighs the probability that the treatment will succeed", "It defers the decision entirely to the healthcare team"], "a": [1], "r": "Relationship-based theories take all parties' feelings into consideration. The goal is to maintain relationships and care for all parties involved.", "id": "s3-4"}, {"s": 4, "t": "mc", "q": "What is a code of ethics?", "o": ["A set of statutory laws that govern the practice of nursing within each state", "A general guide for a profession's membership and a social contract with the public the profession serves", "A list of the disciplinary actions a state licensing board is able to take", "The written policies and procedures adopted by an individual healthcare facility"], "a": [1], "r": "A code of ethics is both a general guide for a profession's membership and a social contract with the public that the profession serves.", "id": "s4-1"}, {"s": 4, "t": "mc", "q": "What is the Nightingale Pledge?", "o": ["The oath taken by nurses when they receive their license", "The first code of nursing ethics used in the United States", "The original version of the ANA Code of Ethics", "A pledge written by Florence Nightingale herself"], "a": [1], "r": "The Nightingale Pledge is considered the first code of nursing ethics used in the United States. It was written in 1893 by Lystra Gretter and named in honor of Florence Nightingale.", "id": "s4-2"}, {"s": 4, "t": "mc", "q": "Who wrote the Nightingale Pledge, and after what was it patterned?", "o": ["Florence Nightingale, patterned after the Hippocratic Oath", "Lystra Gretter, patterned after the Hippocratic Oath for medicine", "Lystra Gretter, patterned after the ICN Code of Ethics", "The American Nurses Association, patterned after the Nightingale writings"], "a": [1], "r": "The Nightingale Pledge was written in 1893 by Lystra Gretter, principal of the Farrand Training School for Nurses in Detroit, and was patterned after the Hippocratic Oath for medicine.", "id": "s4-3"}, {"s": 4, "t": "sata", "q": "On which two major codes of ethics does the nursing profession depend today? Select all that apply.", "o": ["The International Council of Nurses (ICN) Code of Ethics for Nurses", "The ANA Code of Ethics for Nurses", "The Nightingale Pledge", "The Hippocratic Oath", "The ANA Scope and Standards of Practice"], "a": [0, 1], "r": "Today the nursing profession depends primarily on two major codes of ethics: the International Council of Nurses (ICN) Code of Ethics for Nurses and the ANA Code of Ethics for Nurses.", "id": "s4-4"}, {"s": 5, "t": "mc", "q": "Following a motor vehicle crash, the parents refuse to permit withdrawal of life support from their child, who has no apparent brain function. Although the nurse believes the child should be allowed to die and organ donation considered, the nurse supports their decision. This is based on which ethical principle?", "o": ["Nonmaleficence", "Beneficence", "Justice", "Autonomy"], "a": [3], "r": "Autonomy is the right to self-determination. The nurse is obliged to respect a parent's or significant other's informed decision regarding the client. These parents may modify their decision as time goes on and the child's condition, or their feelings, change.", "id": "s5-1"}, {"s": 5, "t": "mc", "q": "In that scenario, why is the answer not nonmaleficence or beneficence?", "o": ["Those principles apply only to adult patients", "The situation is not clearly one of either, as there are many aspects of both", "Those principles have been overridden by the parents' decision", "Those principles apply only when a treatment has been ordered"], "a": [1], "r": "This situation is not clearly one of nonmaleficence (do no harm) or beneficence (do good), as there are many aspects of both. If the child appeared to be suffering or an effective treatment was being denied, these principles might apply.", "id": "s5-2"}, {"s": 6, "t": "mc", "q": "How many rights are in the newest version of the patient bill of rights?", "o": ["6", "7", "8", "10"], "a": [2], "r": "The newest version of the bill of rights has 8 rights, not 7. The eighth is consumer responsibilities.", "id": "s6-1"}, {"s": 6, "t": "mc", "q": "Which right was added to make the newest version eight rather than seven?", "o": ["Access to emergency services", "Complaints and appeals", "Consumer responsibilities", "Confidentiality of health information"], "a": [2], "r": "Consumer responsibilities is the eighth right: a duty to take an active role in healthcare and to assume reasonable responsibility for one's health.", "id": "s6-2"}, {"s": 6, "t": "mc", "q": "Which commission's bill of rights is summarized in the lecture?", "o": ["The Joint Commission on Accreditation of Healthcare Organizations", "The US Advisory Commission on Consumer Protection and Quality in the Healthcare Industry", "The American Nurses Association Commission on Patient Rights", "The World Health Organization Commission on Health Equity"], "a": [1], "r": "The slide summarizes the Bill of Rights of the US Advisory Commission on Consumer Protection and Quality in the Healthcare Industry.", "id": "s6-3"}, {"s": 6, "t": "sata", "q": "What do most healthcare organizations' patient bills of rights discuss? Select all that apply.", "o": ["Privacy and confidentiality", "Nondiscrimination", "Language preferences", "Patient involvement in treatment decisions", "The cost of each procedure", "Staffing ratios on the unit"], "a": [0, 1, 2, 3], "r": "Although bills of rights differ from one another to some degree, most discuss privacy and confidentiality, nondiscrimination, language preferences, and patient involvement in treatment decisions.", "id": "s6-4"}, {"s": 7, "t": "mc", "q": "Which organization developed the pediatric bill of rights?", "o": ["The American Nurses Association", "The Association for the Care of Children's Health", "The American Academy of Pediatrics", "The US Advisory Commission on Consumer Protection"], "a": [1], "r": "The Association for the Care of Children's Health developed the pediatric bill of rights, which outlines the need for family-centered care that provides developmentally appropriate psychosocial support.", "id": "s7-1"}, {"s": 7, "t": "mc", "q": "What is the central theme of the pediatric bill of rights?", "o": ["Protecting children from procedures that are unnecessary or overly invasive", "Allowing patients and families to remain together whenever possible during treatments and hospital stays", "Ensuring children receive their care from pediatric specialists wherever possible", "Guaranteeing that parents rather than providers make all treatment decisions"], "a": [1], "r": "A central theme in the pediatric bill of rights is allowing patients and families to remain together whenever possible during treatments and hospital stays, which in some cases includes arrangements for a family member to remain with the child overnight. The goal is to maintain a sense of normalcy rather than emphasizing the child's illness.", "id": "s7-2"}, {"s": 7, "t": "mc", "q": "Are adolescents covered under the pediatric bill of rights?", "o": ["No, adolescents are covered under the adult patient bill of rights instead", "Yes, adolescent patients are also covered under the pediatric bill of rights", "Only until they reach the age of 16, and then the adult rights apply", "Only if they are still living at home with a parent or legal guardian"], "a": [1], "r": "Adolescent patients are also covered under the pediatric bill of rights. An important difference in caring for adolescents rather than young children is the role of family.", "id": "s7-3"}, {"s": 7, "t": "sata", "q": "In which situations is parental consent NOT required for medical treatment of an adolescent under 18? Select all that apply.", "o": ["The adolescent has been emancipated", "The adolescent resides in a state that recognizes mature minors", "The adolescent is seeking specific types of treatment recognized by state law, such as birth control, prenatal care, or STI diagnosis and treatment", "There is a court order to proceed with treatment", "The adolescent has their own health insurance", "The parents are unavailable by telephone"], "a": [0, 1, 2, 3], "r": "Parents or guardians must consent to medical treatment for adolescents under 18 unless the adolescent has been emancipated, resides in a state that recognizes mature minors, is seeking specific types of treatment recognized by state law such as birth control, prenatal care or STI diagnosis and treatment, or has a court order to proceed.", "id": "s7-4"}, {"s": 7, "t": "mc", "q": "In North Carolina, from what age may minors consent to treatment such as birth control, prenatal care and STI treatment?", "o": ["Age 10", "Age 12", "Age 14", "Age 16"], "a": [1], "r": "NC allows all minors over 12 to consent to this type of treatment. Minors may also be able to give consent for mental health counseling and substance abuse treatment.", "id": "s7-5"}, {"s": 7, "t": "sata", "q": "Which rights are specific to the pregnant patient? Select all that apply.", "o": ["The right to prenatal care", "The right to choose a physician or midwife, who must be a Certified Nurse Midwife in NC", "The right to give birth in the setting of her choice", "The right to deliver in the position of her choice, if safe", "The right to uninterrupted contact with her newborn", "The right to refuse all monitoring during labor"], "a": [0, 1, 2, 3, 4], "r": "Rights specific to the pregnant patient include the right to prenatal care, the right to choose a physician or midwife, the right to give birth in the setting of her choice, the right to move freely during labor and deliver in the position of her choice if safe, and the right to uninterrupted contact with her newborn.", "id": "s7-6"}, {"s": 7, "t": "mc", "q": "In North Carolina, who must attend a home birth?", "o": ["Any licensed midwife", "A Certified Nurse Midwife", "A Certified Professional Midwife", "A physician only"], "a": [1], "r": "It is illegal in NC to give birth at home with a non-nurse midwife. The midwife cannot be a Certified Professional Midwife and must be a Certified Nurse Midwife.", "id": "s7-7"}, {"s": 7, "t": "mc", "q": "What is the biggest patient rights issue for older adults?", "o": ["Access to emergency services for those living in rural areas", "Long-term care provided in nursing homes and skilled nursing facilities", "The rising cost of prescription medications on a fixed income", "Arranging transportation to and from outpatient appointments"], "a": [1], "r": "The biggest patient rights issues for older patients involve long-term care provided in nursing homes and in skilled nursing facilities.", "id": "s7-8"}, {"s": 7, "t": "sata", "q": "Which rights apply to older adults in long-term care? Select all that apply.", "o": ["Nondiscrimination and respect", "Freedom from abuse and neglect", "Freedom from physical restraints", "A private room in every facility", "Guaranteed placement near family"], "a": [0, 1, 2], "r": "The rights of older adults in long-term care include nondiscrimination, respect, freedom from abuse and neglect, and freedom from physical restraints.", "id": "s7-9"}, {"s": 7, "t": "sata", "q": "What must long-term care residents be allowed to do? Select all that apply.", "o": ["Be informed about fees and services in writing before admission", "Manage their money as they see fit", "Keep personal property in their rooms", "See the healthcare provider of their choice", "Leave the facility without notifying staff", "Refuse to be assigned a roommate"], "a": [0, 1, 2, 3], "r": "Residents must be informed about fees and services in writing before admission, be allowed to manage their money as they see fit, be allowed to keep personal property in their rooms, and be able to see the healthcare provider of their choice.", "id": "s7-10"}, {"s": 8, "t": "mc", "q": "What is an ethics committee?", "o": ["A board that disciplines nurses for ethical violations", "An interdisciplinary committee utilized to enhance ethical decision making", "A panel that reviews malpractice claims against the facility", "A group that writes the facility's code of ethics"], "a": [1], "r": "Hospitals and other organizations utilize ethics committees to enhance ethical decision making. Healthcare facilities establish interdisciplinary committees to assist in making an ethical decision in the event the patient is not able to express personal wishes for care.", "id": "s8-1"}, {"s": 8, "t": "sata", "q": "Who makes up an ethics committee? Select all that apply.", "o": ["Doctors, nurses and social workers", "Lawyers", "Chaplains", "Medical ethics professionals", "Members of the community", "Only staff employed by that institution"], "a": [0, 1, 2, 3, 4], "r": "Ethics committees are made up of doctors, nurses and social workers as well as lawyers, chaplains, medical ethics professionals and members of the community. A number of health professional members should be recruited from outside the institution to prevent parochialism.", "id": "s8-2"}, {"s": 8, "t": "mc", "q": "Who may request an ethics committee consultation?", "o": ["Only the attending physician", "Any healthcare team member, patient or patient family member", "Only the nurse manager or above", "Only the patient or their legal representative"], "a": [1], "r": "Any healthcare team member, patient or patient family member may request a consultation.", "id": "s8-3"}, {"s": 8, "t": "mc", "q": "Who makes the final decision after an ethics committee consultation?", "o": ["The ethics committee, by majority vote", "The patient, family and the healthcare team", "The attending physician alone", "The facility's chief medical officer"], "a": [1], "r": "The ethics committee makes suggestions about the best course of action, but final decisions are made by the patient, family and the healthcare team.", "id": "s8-4"}, {"s": 9, "t": "sata", "q": "Which are ethical issues affecting nursing practice? Select all that apply.", "o": ["Staffing shortages", "Allocating limited resources", "Patient autonomy", "Patient privacy and confidentiality", "Working with unethical or impaired colleagues", "Choosing a specialty area of practice"], "a": [0, 1, 2, 3, 4], "r": "The ethical issues in nursing practice are staffing shortages, allocating limited resources, patient autonomy, patient privacy and confidentiality, working with unethical or impaired colleagues, prolonging the living and dying process, using or not using chemical or physical restraints, and providing care with risk to the health of the nurse.", "id": "s9-1"}, {"s": 9, "t": "sata", "q": "Which further ethical issues affect nursing practice? Select all that apply.", "o": ["Prolonging the living and dying process", "Using or not using chemical or physical restraints", "Providing care with risk to the health of the nurse", "Selecting the facility's electronic health record", "Negotiating a nurse's salary"], "a": [0, 1, 2], "r": "The remaining ethical issues are prolonging the living and dying process, using or not using chemical or physical restraints, and providing care with risk to the health of the nurse, which was seen during the COVID-19 pandemic.", "id": "s9-2"}, {"s": 9, "t": "mc", "q": "What does HIPAA require of healthcare professionals?", "o": ["That they obtain written consent from the patient before performing any procedure", "That they keep private all information related to an individual's health and health-related decisions", "That they report all unethical or impaired colleagues to the state board of nursing", "That they document every nursing intervention within one hour of performing it"], "a": [1], "r": "The Health Insurance Portability and Accountability Act of 1996 requires that healthcare professionals keep private all information related to an individual's health and health-related decisions. Nurses who do not respect patient confidentiality may face large fines, and the agency will also incur large fines.", "id": "s9-3"}, {"s": 9, "t": "mc", "q": "Why do nurses experience ethical dilemmas over the use of restraints?", "o": ["Restraints require a physician's order that is often delayed", "They need to weigh patient autonomy against patient safety", "Chemical restraints carry more risk than physical ones", "Facility policies on restraints vary widely"], "a": [1], "r": "Nurses usually experience ethical dilemmas over using physical and chemical restraints, meaning sedatives, antipsychotics and anti-anxiety medications, because they need to weigh patient autonomy against patient safety.", "id": "s9-4"}];
+const TITLES = {"1": "Key Terms", "2": "Moral Frameworks and Theories", "3": "Applying the Moral Frameworks", "4": "Nursing Codes of Ethics", "5": "Pop Quiz", "6": "Patient Bill of Rights", "7": "Patient Rights Across the Lifespan", "8": "Ethics Committee", "9": "Ethical Issues in Nursing Practice"};
+const GROUPS = [{"name": "Key terms and ethical principles", "slides": [1]}, {"name": "Moral frameworks", "slides": [2, 3]}, {"name": "Codes of ethics and applying the principles", "slides": [4, 5]}, {"name": "Patient rights", "slides": [6, 7]}, {"name": "Ethics in practice", "slides": [8, 9]}];
+const SECTION_LABEL = {"1": "Slide 3", "2": "Slide 5", "3": "Slide 6", "4": "Slide 7", "5": "Slide 12", "6": "Slide 14", "7": "Slide 15", "8": "Slide 16", "9": "Slide 17"};
+const ANA = [["Provision 1", "The nurse practices with compassion and respect for the inherent dignity, worth, and unique attributes of every person.  Covers relationships and the treatment of people: respecting human dignity, respect in professional relationships, respecting self-determination, and speaking against harassment, bullying and lateral violence."], ["Provision 2", "The nurse's primary commitment is to the patient, whether an individual, family, group, community, or population.  Nurses foster collaboration for better patient outcomes, and professional boundaries should be in place with patients and colleagues, such as generally not accepting gifts from patients."], ["Provision 3", "The nurse promotes, advocates for, and protects the rights, health, and safety of the patient.  Covers advocating for the patient and HIPAA, nurse leaders ensuring those they lead are safe for patient care, nurses participating in policy making and review, and reporting impaired colleagues."], ["Provision 4", "The nurse has authority, accountability, and responsibility for nursing practice; makes decisions; and takes action consistent with the obligation to promote health and to provide optimal care.  Nurses are accountable for the care they give, the decisions they make and the activities they delegate, and should only perform tasks they feel competent to perform."], ["Provision 5", "The nurse has moral duties to self as a person of inherent dignity and worth, including an expectation of a safe place to work that fosters flourishing, authenticity of self at work, and self-respect through integrity and professional competence.  Nurses maintain optimal physical and mental health and model the health promotion they teach."], ["Provision 6", "The nurse, through individual and collective effort, establishes, maintains, and improves the ethical environment of the work setting that affects nursing care and the well-being of nurses.  Moral character is an expectation of a nurse, and nurses must create, maintain and contribute to morally good environments."], ["Provision 7", "Nurses advance the profession through multiple approaches to knowledge development, professional standards, and the generation of policies for nursing, health, and social concerns.  This includes participating in professional organizations and workplace committees, and serving as mentors and role models for colleagues."], ["Provision 8", "Nurses build collaborative relationships and networks with nurses, other healthcare and non-healthcare disciplines, and the public to achieve greater ends.  Collaboration with all disciplines within and outside of healthcare allows for the achievement of better outcomes."], ["Provision 9", "Nurses and their professional organizations work to enact and resource practices, policies, and legislation to promote social justice, eliminate health inequities, and facilitate human flourishing.  Nurses and their organizations support practices, policies and laws that promote fairness, reduce health gaps and help people thrive."], ["Provision 10", "Nursing, through organizations and associations, participates in the global nursing and health community to promote human and environmental health, well-being, and flourishing.  This is similar to Provision 9, but on a global level."]];
+const RIGHTS = [["Information disclosure", "You have the right to accurate and easily understood information about your health plan, healthcare professionals and healthcare facilities. If you speak another language, have a physical or mental disability, or just don't understand something, help should be provided so you can make informed healthcare decisions."], ["Choice of providers and plans", "You have the right to a choice of healthcare providers who can give you high-quality healthcare when you need it."], ["Access to emergency services", "If you have severe pain, an injury, or sudden illness that makes you believe your health is in serious danger, you have the right to be screened and stabilized using emergency services, whenever and wherever you need them, without waiting for authorization and without any financial penalty."], ["Participation in treatment decisions", "You have the right to know your treatment options and to take part in decisions about your care. Parents, guardians, family members or others you select can represent you if you cannot make your own decisions."], ["Respect and nondiscrimination", "You have a right to considerate, respectful care from your physicians, health plan representatives and other healthcare providers that does not discriminate against you."], ["Confidentiality of health information", "You have the right to talk with healthcare providers and to have your healthcare information protected. You also have the right to read and copy your own medical records, and to ask that your physician change your record if it is not accurate, relevant or complete."], ["Complaints and appeals", "You have the right to a fair, fast and objective review of any complaint you have against your health plan, physicians, hospitals or other healthcare personnel, including complaints about waiting times, operating hours, the actions of healthcare personnel and the adequacy of healthcare facilities."], ["Consumer responsibilities", "The eighth right, and the one that makes the newest version eight rather than seven: a duty to take an active role in your healthcare and to assume reasonable responsibility for your own health."]];
+const TYPE_LABEL = {mc:"Multiple choice", sata:"Select all that apply", match:"Matching", grid:"Matrix grid"};
+const LETTERS = "ABCDEFGHIJ";
+const KEY_SEEN = "ethicsTB.seen.v1";
+const KEY_MISSED = "ethicsTB.missed.v1";
+const KEY_RUNS = "ethicsTB.runs.v1";
+
+/* ---------------- storage (best effort) ---------------- */
+function load(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function save(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+let seen = new Set(load(KEY_SEEN, []));
+let missed = new Set(load(KEY_MISSED, []));
+let runs = load(KEY_RUNS, []);
+function persist(){
+  save(KEY_SEEN, [...seen]); save(KEY_MISSED, [...missed]); save(KEY_RUNS, runs.slice(-40));
+}
+
+/* ---------------- helpers ---------------- */
+function el(tag, cls, txt){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(txt !== undefined) n.textContent = txt;
+  return n;
+}
+function shuffle(a){
+  a = [...a];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function byId(id){ return QUESTIONS.find(q => q.id === id); }
+function plural(n, w){ return n + " " + w + (n === 1 ? "" : "s"); }
+function mmss(ms){
+  const s = Math.floor(ms/1000);
+  return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+}
+
+/* ---------------- question rendering ---------------- */
+/* mode: "study" = check button + instant rationale; "exam" = collect only; "review" = show result */
+function renderQuestion(q, opts){
+  const o = opts || {};
+  const card = el("article","q");
+  card.dataset.type = q.t;
+
+  const head = el("div","qhead");
+  if(o.label !== undefined) head.appendChild(el("span","qnum", o.label));
+  head.appendChild(el("span","qtype", TYPE_LABEL[q.t]));
+  if(o.showSlide) head.appendChild(el("span","qslide","Slide " + q.s));
+  card.appendChild(head);
+  card.appendChild(el("p","stem", q.q));
+
+  const state = o.state || {};          // {picked:[origIdx...], order:[...], match:{}}
+  if(!state.order) state.order = q.t === "grid" ? [...Array(q.rows.length).keys()]
+    : shuffle([...Array(q.t === "match" ? q.p.length : q.o.length).keys()]);
+
+  if(q.t === "match") buildMatch(card, q, state, o);
+  else if(q.t === "grid") buildGrid(card, q, state, o);
+  else buildChoice(card, q, state, o);
+
+  if(o.mode === "review"){
+    const gotIt = isCorrect(q, state);
+    const line = q.t === "match" ? "Correct matches are shown beside each item."
+      : q.t === "grid" ? "The correct boxes are ticked below."
+      : "Answer: " + answerLetters(q, state).join(", ") + ".";
+    const r = el("div","rat");
+    r.appendChild(el("span","ans", (state.picked === undefined && !state.match ? "Skipped. " : (gotIt ? "Correct. " : "Not quite. ")) + line));
+    if(q.r) r.appendChild(document.createTextNode(q.r));
+    card.appendChild(r);
+    if(q.f){
+      const n = el("div","note");
+      n.appendChild(el("span","t","Instructor update. "));
+      n.appendChild(document.createTextNode(q.f));
+      card.appendChild(n);
+    }
+  }
+  return card;
+}
+
+function answerLetters(q, state){
+  if(q.t === "match") return state.order.map((_, i) => LETTERS[i]);
+  if(q.t === "grid") return [];
+  const ans = new Set(q.a);
+  return state.order.map((orig, pos) => ans.has(orig) ? LETTERS[pos] : null)
+                    .filter(Boolean).sort();
+}
+
+function isCorrect(q, state){
+  if(q.t === "grid"){
+    const got = state.grid || {};
+    return q.rows.every((_, r) => {
+      const want = new Set(q.a[r]);
+      const have = new Set(got[r] || []);
+      if(want.size !== have.size) return false;
+      for(const c of want) if(!have.has(c)) return false;
+      return true;
+    });
+  }
+  if(q.t === "match"){
+    return q.p.every((_, idx) => (state.match || {})[idx] === LETTERS[state.order.indexOf(idx)]);
+  }
+  const picked = new Set(state.picked || []);
+  const ans = new Set(q.a);
+  if(picked.size !== ans.size) return false;
+  for(const a of ans) if(!picked.has(a)) return false;
+  return true;
+}
+
+function buildChoice(card, q, state, o){
+  const multi = q.t === "sata";
+  if(!state.picked) state.picked = [];
+  const picked = new Set(state.picked);
+  const list = el("ul","opts");
+  const buttons = [];
+  const locked = o.mode === "review";
+
+  state.order.forEach((orig, pos) => {
+    const li = el("li");
+    const b = el("button","opt" + (multi ? "" : " round"));
+    b.type = "button";
+    b.setAttribute("aria-pressed", picked.has(orig) ? "true" : "false");
+    b.appendChild(el("span","box", LETTERS[pos]));
+    b.appendChild(el("span","txt", q.o[orig]));
+    b.dataset.orig = orig;
+    if(locked) b.disabled = true;
+    else b.addEventListener("click", () => {
+      if(!multi){ buttons.forEach(x => x.setAttribute("aria-pressed","false")); picked.clear(); }
+      const on = b.getAttribute("aria-pressed") === "true";
+      b.setAttribute("aria-pressed", on ? "false" : "true");
+      if(on) picked.delete(orig); else picked.add(orig);
+      state.picked = [...picked];
+      if(o.onChange) o.onChange();
+    });
+    buttons.push(b);
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+  card.appendChild(list);
+
+  if(locked){
+    const ans = new Set(q.a);
+    buttons.forEach(b => {
+      const i = Number(b.dataset.orig);
+      const chosen = picked.has(i);
+      b.setAttribute("aria-pressed","false");
+      if(ans.has(i) && chosen) b.classList.add("correct");
+      else if(ans.has(i)) b.classList.add("missed");
+      else if(chosen) b.classList.add("incorrect");
+    });
+    return;
+  }
+
+  if(o.mode === "study"){
+    const btn = el("button","btn small", multi ? "Check answers" : "Check answer");
+    btn.type = "button";
+    card.appendChild(btn);
+    btn.addEventListener("click", () => {
+      if(btn.disabled || picked.size === 0) return;
+      btn.disabled = true; btn.textContent = "Answer shown"; btn.classList.add("ghost");
+      const ans = new Set(q.a);
+      buttons.forEach(b => {
+        const i = Number(b.dataset.orig);
+        const chosen = picked.has(i);
+        b.disabled = true; b.setAttribute("aria-pressed","false");
+        if(ans.has(i) && chosen) b.classList.add("correct");
+        else if(ans.has(i)) b.classList.add("missed");
+        else if(chosen) b.classList.add("incorrect");
+      });
+      finishStudy(card, q, state);
+    });
+  }
+}
+
+
+function buildGrid(card, q, state, o){
+  if(!state.grid) state.grid = {};
+  const locked = o.mode === "review";
+  const wrap = el("div","gridwrap");
+  const tbl = el("table","matrix");
+
+  const thead = el("thead");
+  const hr = el("tr");
+  hr.appendChild(el("th", null, q.rowHead || "Client finding"));
+  q.cols.forEach(c => hr.appendChild(el("th","col", c)));
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  const tbody = el("tbody");
+  const cells = [];
+  q.rows.forEach((label, r) => {
+    const tr = el("tr");
+    tr.appendChild(el("td","rowlab", label));
+    q.cols.forEach((cname, c) => {
+      const td = el("td","cell");
+      const box = el("button","gbox");
+      box.type = "button";
+      box.dataset.row = String(r);
+      box.dataset.col = String(c);
+      box.setAttribute("aria-label", label + ": " + cname);
+      box.setAttribute("aria-pressed", "false");
+      const on = (state.grid[r] || []).includes(c);
+      if(on){ box.classList.add("on"); box.setAttribute("aria-pressed","true"); box.textContent = "✕"; }
+      if(locked) box.disabled = true;
+      else box.addEventListener("click", () => {
+        if(box.disabled) return;
+        const list = new Set(state.grid[r] || []);
+        if(list.has(c)) list.delete(c); else list.add(c);
+        state.grid[r] = [...list];
+        const nowOn = list.has(c);
+        box.classList.toggle("on", nowOn);
+        box.setAttribute("aria-pressed", String(nowOn));
+        box.textContent = nowOn ? "✕" : "";
+        if(o.onChange) o.onChange();
+      });
+      td.appendChild(box);
+      tr.appendChild(td);
+      cells.push({box, r, c});
+    });
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+  wrap.appendChild(tbl);
+  card.appendChild(wrap);
+
+  function mark(){
+    cells.forEach(({box, r, c}) => {
+      box.disabled = true;
+      const want = (q.a[r] || []).includes(c);
+      const got = (state.grid[r] || []).includes(c);
+      if(want && got) box.classList.add("correct");
+      else if(want){ box.classList.add("missed"); box.textContent = "✕"; }
+      else if(got) box.classList.add("incorrect");
+    });
+  }
+  if(locked){ mark(); return; }
+
+  if(o.mode === "study"){
+    const btn = el("button","btn small","Check the grid");
+    btn.type = "button";
+    card.appendChild(btn);
+    btn.addEventListener("click", () => {
+      if(btn.disabled) return;
+      if(!Object.values(state.grid).some(v => v && v.length)) return;
+      btn.disabled = true; btn.textContent = "Answer shown"; btn.classList.add("ghost");
+      mark();
+      finishStudy(card, q, state);
+    });
+  }
+}
+
+function buildMatch(card, q, state, o){
+  if(!state.match) state.match = {};
+  const locked = o.mode === "review";
+  const bank = el("div","bank");
+  bank.appendChild(el("div","lbl","Answer bank"));
+  const ol = el("ol"); ol.type = "A";
+  state.order.forEach(i => ol.appendChild(el("li", null, q.p[i][1])));
+  bank.appendChild(ol);
+  card.appendChild(bank);
+
+  const rows = [];
+  const holder = el("div","pairs");
+  q.p.forEach((pair, idx) => {
+    const row = el("div","pair");
+    row.appendChild(el("span","prompt", (idx+1) + ". " + pair[0]));
+    const sel = el("select");
+    sel.setAttribute("aria-label","Match for " + pair[0]);
+    const ph = el("option", null, "—"); ph.value = "";
+    sel.appendChild(ph);
+    state.order.forEach((_, pos) => {
+      const op = el("option", null, LETTERS[pos]); op.value = LETTERS[pos];
+      sel.appendChild(op);
+    });
+    sel.value = state.match[idx] || "";
+    const verdict = el("span","verdict","");
+    if(locked) sel.disabled = true;
+    else sel.addEventListener("change", () => {
+      state.match[idx] = sel.value;
+      if(o.onChange) o.onChange();
+    });
+    row.appendChild(sel); row.appendChild(verdict);
+    holder.appendChild(row);
+    rows.push({row, sel, verdict, correctLetter: LETTERS[state.order.indexOf(idx)]});
+  });
+  card.appendChild(holder);
+
+  function mark(){
+    rows.forEach(r => {
+      r.sel.disabled = true;
+      if(r.sel.value === r.correctLetter){ r.row.classList.add("ok"); r.verdict.textContent = r.correctLetter; }
+      else { r.row.classList.add("no"); r.verdict.textContent = "→ " + r.correctLetter; }
+    });
+  }
+  if(locked){ mark(); return; }
+
+  if(o.mode === "study"){
+    const btn = el("button","btn small","Check matches");
+    btn.type = "button";
+    card.appendChild(btn);
+    btn.addEventListener("click", () => {
+      if(btn.disabled) return;
+      if(rows.every(r => r.sel.value === "")) return;
+      btn.disabled = true; btn.textContent = "Answer shown"; btn.classList.add("ghost");
+      mark();
+      finishStudy(card, q, state);
+    });
+  }
+}
+
+/* study-mode instant feedback */
+let studyAnswered = 0, studyCorrect = 0;
+function finishStudy(card, q, state){
+  const gotIt = isCorrect(q, state);
+  const line = q.t === "match" ? "Correct matches are shown beside each item."
+    : q.t === "grid" ? "The correct boxes are ticked below."
+    : "Answer: " + answerLetters(q, state).join(", ") + ".";
+  const r = el("div","rat");
+  r.appendChild(el("span","ans", (gotIt ? "Correct. " : "Not quite. ") + line));
+  if(q.r) r.appendChild(document.createTextNode(q.r));
+  card.appendChild(r);
+  if(q.f){
+    const n = el("div","note");
+    n.appendChild(el("span","t","Instructor update. "));
+    n.appendChild(document.createTextNode(q.f));
+    card.appendChild(n);
+  }
+  seen.add(q.id);
+  if(gotIt) missed.delete(q.id); else missed.add(q.id);
+  persist();
+  studyAnswered++; if(gotIt) studyCorrect++;
+  const t = document.getElementById("studyTally");
+  if(t) t.innerHTML = "Answered <b>"+studyAnswered+"</b> — <b>"+studyCorrect+"</b> correct";
+}
+
+/* ---------------- STUDY MODE ---------------- */
+function viewStudy(){
+  const app = document.getElementById("app");
+  app.textContent = "";
+  studyAnswered = 0; studyCorrect = 0;
+
+  const bar = el("div","toolbar");
+  const lab = el("label", null, "Jump to"); lab.setAttribute("for","jump");
+  const jump = el("select","jump"); jump.id = "jump";
+  const allOpt = el("option", null, "All slides"); allOpt.value = "top";
+  jump.appendChild(allOpt);
+  bar.appendChild(lab); bar.appendChild(jump);
+
+  const chips = el("div","chips");
+  [["all","All"],["mc","Multiple choice"],["sata","Select all"],["match","Matching"],["grid","Matrix grid"]].forEach(([f,t],i) => {
+    const c = el("button","chip",t);
+    c.dataset.filter = f;
+    c.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    chips.appendChild(c);
+  });
+  bar.appendChild(chips);
+  const tally = el("div","tally"); tally.id = "studyTally";
+  tally.innerHTML = "Answered <b>0</b> — <b>0</b> correct";
+  bar.appendChild(tally);
+  app.appendChild(bar);
+
+  const bySlide = new Map();
+  QUESTIONS.forEach(q => { if(!bySlide.has(q.s)) bySlide.set(q.s, []); bySlide.get(q.s).push(q); });
+
+  let n = 0;
+  [...bySlide.keys()].sort((a,b)=>a-b).forEach(slide => {
+    const sec = el("section","slide");
+    sec.id = "slide-" + slide;
+    sec.appendChild(el("h2", null, TITLES[slide] || ("Slide " + slide)));
+    const items = bySlide.get(slide);
+    sec.appendChild(el("p","meta",(SECTION_LABEL[slide] || ("Slide " + slide)) + " · " + plural(items.length,"question")));
+    items.forEach(q => { n++; sec.appendChild(renderQuestion(q, {mode:"study", label:String(n)})); });
+    app.appendChild(sec);
+    const op = el("option", null, "Slide " + slide + " — " + (TITLES[slide] || ""));
+    op.value = sec.id;
+    jump.appendChild(op);
+  });
+
+  jump.addEventListener("change", () => {
+    if(jump.value === "top"){ window.scrollTo({top:0,behavior:"smooth"}); return; }
+    const t = document.getElementById(jump.value);
+    if(t) t.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+  chips.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const f = chip.dataset.filter;
+      chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c === chip)));
+      app.querySelectorAll("article.q").forEach(c =>
+        c.classList.toggle("hidden", f !== "all" && c.dataset.type !== f));
+      app.querySelectorAll("section.slide").forEach(sec => {
+        const vis = [...sec.querySelectorAll("article.q")].some(c => !c.classList.contains("hidden"));
+        sec.classList.toggle("hidden", !vis);
+      });
+    });
+  });
+}
+
+/* ---------------- EXAM SETUP ---------------- */
+const setup = {
+  scope: "all",        // "all" | "unit" | "slide" | "missed"
+  unit: 0,             // index into GROUPS when scope === "unit"
+  slide: null,         // slide number when scope === "slide"
+  types: new Set(["mc","sata","match","grid"]),
+  limit: 25,
+  fresh: true
+};
+const ALL_SLIDES = [...new Set(QUESTIONS.map(q => q.s))].sort((a,b) => a-b);
+
+function poolFor(s){
+  let pool = QUESTIONS.filter(q => s.types.has(q.t));
+  if(s.scope === "missed") return pool.filter(q => missed.has(q.id));
+  if(s.scope === "unit"){
+    const g = GROUPS[s.unit] || {slides:[]};
+    return pool.filter(q => g.slides.includes(q.s));
+  }
+  if(s.scope === "slide") return pool.filter(q => q.s === s.slide);
+  return pool;
+}
+
+function viewExamSetup(){
+  const app = document.getElementById("app");
+  app.textContent = "";
+
+  const panel = el("div","panel");
+  panel.appendChild(el("h2", null, "Take a practice exam"));
+  panel.appendChild(el("p","sub","Two quick choices and you're in. Questions and answer choices come up in a different order every time, and you'll get ones you haven't seen before you get any repeats."));
+
+  /* --- 1. what to practice --- */
+  const f1 = el("div","field");
+  f1.appendChild(el("div","h","1. What do you want to practice?"));
+  const choices = el("div","choices");
+
+  function choice(scope, title, sub, disabled){
+    const b = el("button","choice");
+    b.type = "button";
+    b.dataset.scope = scope;
+    b.setAttribute("aria-pressed", String(setup.scope === scope));
+    b.appendChild(el("span","dot"));
+    const w = el("span");
+    w.appendChild(el("span","t", title));
+    if(sub) w.appendChild(el("span","s", sub));
+    b.appendChild(w);
+    if(disabled) b.disabled = true;
+    return b;
+  }
+
+  choices.appendChild(choice("all","Everything",
+    ALL_SLIDES.length + " topics · " + QUESTIONS.length + " questions"));
+  choices.appendChild(choice("unit","One unit",
+    "A group of related topics, like injections or medication errors"));
+  choices.appendChild(choice("slide","One topic",
+    "A single slide you want to hammer"));
+  choices.appendChild(choice("missed","Only what I've gotten wrong",
+    missed.size ? plural(missed.size,"question") + " to clean up"
+                : "Nothing yet — this fills up as you answer questions",
+    missed.size === 0));
+  f1.appendChild(choices);
+
+  /* dropdown that appears under the unit / topic choices */
+  const picker = el("div","picker");
+  const sel = el("select");
+  sel.id = "scopePicker";
+  picker.appendChild(sel);
+  f1.appendChild(picker);
+  panel.appendChild(f1);
+
+  /* --- 2. how long --- */
+  const f2 = el("div","field");
+  f2.appendChild(el("div","h","2. How many questions?"));
+  const sizes = el("div","sizes");
+  [[10,"Quick check"],[25,"Standard"],[50,"Long"],["all","Everything"]].forEach(([v,lab]) => {
+    const b = el("button","size");
+    b.type = "button";
+    b.dataset.limit = v;
+    b.setAttribute("aria-pressed", String(setup.limit === v));
+    b.appendChild(el("span","t", v === "all" ? "All" : String(v)));
+    b.appendChild(el("span","s", lab));
+    sizes.appendChild(b);
+  });
+  f2.appendChild(sizes);
+  panel.appendChild(f2);
+
+  /* --- start --- */
+  const bar = el("div","startbar");
+  const start = el("button","btn","Start exam");
+  bar.appendChild(start);
+  const info = el("div","poolinfo");
+  bar.appendChild(info);
+  const warnBox = el("div","warn hidden");
+  bar.appendChild(warnBox);
+  panel.appendChild(bar);
+
+  /* --- collapsed extras --- */
+  const more = el("details","more");
+  const sum = document.createElement("summary");
+  sum.textContent = "More options";
+  more.appendChild(sum);
+  const fT = el("div","field");
+  fT.appendChild(el("div","d","Question formats to include:"));
+  [["mc","Multiple choice"],["sata","Select all that apply"],["match","Matching"]].forEach(([v,t]) => {
+    const l = el("label","cb");
+    const cb = el("input"); cb.type = "checkbox"; cb.dataset.type = v;
+    cb.checked = setup.types.has(v);
+    l.appendChild(cb); l.appendChild(el("span", null, t));
+    fT.appendChild(l);
+  });
+  const lf = el("label","cb");
+  const cbF = el("input"); cbF.type = "checkbox"; cbF.checked = !setup.fresh;
+  cbF.id = "repeatCb";
+  lf.appendChild(cbF);
+  lf.appendChild(el("span", null, "Let questions I've already seen come up again"));
+  fT.appendChild(lf);
+  more.appendChild(fT);
+  panel.appendChild(more);
+
+  app.appendChild(panel);
+
+  /* ----- wiring ----- */
+  function fillPicker(){
+    sel.textContent = "";
+    if(setup.scope === "unit"){
+      GROUPS.forEach((g, i) => {
+        const n = QUESTIONS.filter(q => g.slides.includes(q.s)).length;
+        const o = el("option", null, g.name + " (" + n + ")");
+        o.value = String(i);
+        sel.appendChild(o);
+      });
+      sel.value = String(setup.unit);
+    } else if(setup.scope === "slide"){
+      ALL_SLIDES.forEach(s => {
+        const n = QUESTIONS.filter(q => q.s === s).length;
+        const o = el("option", null, (TITLES[s] || ("Slide " + s)) + "  (" + n + " questions)");
+        o.value = String(s);
+        sel.appendChild(o);
+      });
+      if(setup.slide === null) setup.slide = ALL_SLIDES[0];
+      sel.value = String(setup.slide);
+    }
+    picker.classList.toggle("hidden", setup.scope !== "unit" && setup.scope !== "slide");
+  }
+
+  function refresh(){
+    const pool = poolFor(setup);
+    const unseen = pool.filter(q => !seen.has(q.id)).length;
+    const want = setup.limit === "all" ? pool.length : Math.min(setup.limit, pool.length);
+    info.innerHTML = "This exam will be <b>" + want + "</b> question" + (want === 1 ? "" : "s") +
+      ", drawn from " + pool.length + " available.";
+    start.disabled = pool.length === 0;
+    let msg = "";
+    if(pool.length === 0){
+      msg = "Nothing matches these settings. Check the question formats under More options.";
+    } else if(setup.fresh && unseen < want){
+      const rep = want - unseen;
+      msg = "You've already worked through most of this set, so " + rep + " question" +
+        (rep === 1 ? "" : "s") + " will come up again. Pick a wider set, or clear your history at the bottom of the page to start fresh.";
+    }
+    warnBox.textContent = msg;
+    warnBox.classList.toggle("hidden", !msg);
+  }
+
+  choices.addEventListener("click", e => {
+    const b = e.target.closest("[data-scope]");
+    if(!b || b.disabled) return;
+    setup.scope = b.dataset.scope;
+    choices.querySelectorAll("[data-scope]").forEach(c =>
+      c.setAttribute("aria-pressed", String(c === b)));
+    fillPicker(); refresh();
+  });
+  sel.addEventListener("change", () => {
+    if(setup.scope === "unit") setup.unit = Number(sel.value);
+    else if(setup.scope === "slide") setup.slide = Number(sel.value);
+    refresh();
+  });
+  sizes.addEventListener("click", e => {
+    const b = e.target.closest("[data-limit]");
+    if(!b) return;
+    setup.limit = b.dataset.limit === "all" ? "all" : Number(b.dataset.limit);
+    sizes.querySelectorAll("[data-limit]").forEach(c =>
+      c.setAttribute("aria-pressed", String(c === b)));
+    refresh();
+  });
+  more.addEventListener("change", e => {
+    const cb = e.target.closest("input");
+    if(!cb) return;
+    if(cb.dataset.type){
+      if(cb.checked) setup.types.add(cb.dataset.type); else setup.types.delete(cb.dataset.type);
+    } else {
+      setup.fresh = !cb.checked;
+    }
+    refresh();
+  });
+  start.addEventListener("click", () => startExam());
+
+  fillPicker();
+  refresh();
+}
+
+/* ---------------- EXAM RUNNER ---------------- */
+let exam = null;
+
+function startExam(){
+  const pool = poolFor(setup);
+  if(!pool.length) return;
+  const want = setup.limit === "all" ? pool.length : Math.min(setup.limit, pool.length);
+
+  let chosen;
+  if(setup.fresh){
+    const unseen = shuffle(pool.filter(q => !seen.has(q.id)));
+    const rest = shuffle(pool.filter(q => seen.has(q.id)));
+    chosen = unseen.concat(rest).slice(0, want);
+    chosen = shuffle(chosen);
+  } else {
+    chosen = shuffle(pool).slice(0, want);
+  }
+
+  exam = {
+    items: chosen.map(q => ({ id: q.id, state: {}, flagged: false })),
+    i: 0,
+    started: Date.now(),
+    submitted: false
+  };
+  viewExam();
+}
+
+function examAnsweredCount(){
+  return exam.items.filter(it => {
+    const q = byId(it.id);
+    if(q.t === "grid") return Object.values(it.state.grid || {}).some(v => v && v.length);
+    if(q.t === "match") return Object.values(it.state.match || {}).some(v => v);
+    return (it.state.picked || []).length > 0;
+  }).length;
+}
+
+function viewExam(){
+  const app = document.getElementById("app");
+  app.textContent = "";
+
+  const top = el("div","examtop");
+  const pos = el("div","pos"); pos.id = "examPos";
+  const prog = el("div","prog"); const fill = el("i"); prog.appendChild(fill);
+  const timer = el("div","timer"); timer.id = "examTimer";
+  const quit = el("button","btn ghost small","End exam");
+  top.appendChild(pos); top.appendChild(prog); top.appendChild(timer); top.appendChild(quit);
+  app.appendChild(top);
+
+  const holder = el("div"); holder.id = "examHolder";
+  app.appendChild(holder);
+
+  const grid = el("div","navgrid"); grid.id = "examGrid";
+  app.appendChild(grid);
+
+  quit.addEventListener("click", () => submitExam());
+
+  const tick = setInterval(() => {
+    const t = document.getElementById("examTimer");
+    if(!t || !exam || exam.submitted){ clearInterval(tick); return; }
+    t.textContent = mmss(Date.now() - exam.started);
+  }, 1000);
+
+  drawExamGrid();
+  drawExamQuestion();
+
+  function drawExamGrid(){
+    grid.textContent = "";
+    exam.items.forEach((it, idx) => {
+      const b = el("button","navbtn", String(idx+1));
+      const q = byId(it.id);
+      const done = q.t === "grid"
+        ? Object.values(it.state.grid || {}).some(v => v && v.length)
+        : q.t === "match"
+        ? Object.values(it.state.match || {}).some(v => v)
+        : (it.state.picked || []).length > 0;
+      if(done) b.classList.add("done");
+      if(it.flagged) b.classList.add("flag");
+      if(idx === exam.i) b.classList.add("here");
+      b.addEventListener("click", () => { exam.i = idx; drawExamQuestion(); drawExamGrid(); });
+      grid.appendChild(b);
+    });
+  }
+
+  function drawExamQuestion(){
+    const it = exam.items[exam.i];
+    const q = byId(it.id);
+    holder.textContent = "";
+    holder.appendChild(renderQuestion(q, {
+      mode: "exam",
+      label: String(exam.i + 1),
+      showSlide: false,
+      state: it.state,
+      onChange: () => { drawExamGrid(); updateHead(); }
+    }));
+
+    const nav = el("div","runnav");
+    const prev = el("button","btn ghost","Previous");
+    prev.disabled = exam.i === 0;
+    prev.addEventListener("click", () => { exam.i--; drawExamQuestion(); drawExamGrid(); });
+    const flagBtn = el("button","btn ghost", it.flagged ? "Unflag" : "Flag for review");
+    flagBtn.addEventListener("click", () => {
+      it.flagged = !it.flagged; drawExamQuestion(); drawExamGrid();
+    });
+    nav.appendChild(prev); nav.appendChild(flagBtn);
+    const sp = el("span","sp");
+    nav.appendChild(sp);
+    if(exam.i < exam.items.length - 1){
+      const next = el("button","btn","Next");
+      next.addEventListener("click", () => { exam.i++; drawExamQuestion(); drawExamGrid(); });
+      nav.appendChild(next);
+    } else {
+      const sub = el("button","btn","Submit exam");
+      sub.addEventListener("click", () => submitExam());
+      nav.appendChild(sub);
+    }
+    holder.appendChild(nav);
+    updateHead();
+  }
+
+  function updateHead(){
+    const done = examAnsweredCount();
+    document.getElementById("examPos").textContent =
+      "Question " + (exam.i + 1) + " of " + exam.items.length;
+    fill.style.width = (100 * done / exam.items.length) + "%";
+  }
+}
+
+function submitExam(){
+  const unanswered = exam.items.length - examAnsweredCount();
+  if(unanswered > 0 && !exam.submitted){
+    if(!confirm(unanswered + " question" + (unanswered===1?" is":"s are") +
+        " still unanswered. Submit anyway?")) return;
+  }
+  exam.submitted = true;
+  exam.elapsed = Date.now() - exam.started;
+
+  exam.items.forEach(it => {
+    const q = byId(it.id);
+    it.correct = isCorrect(q, it.state);
+    seen.add(q.id);
+    if(it.correct) missed.delete(q.id); else missed.add(q.id);
+  });
+  const right = exam.items.filter(it => it.correct).length;
+  runs.push({ when: Date.now(), n: exam.items.length, right, ms: exam.elapsed });
+  persist();
+  viewResults();
+}
+
+/* ---------------- RESULTS ---------------- */
+function viewResults(){
+  const app = document.getElementById("app");
+  app.textContent = "";
+  const right = exam.items.filter(it => it.correct).length;
+  const n = exam.items.length;
+  const pct = Math.round(100 * right / n);
+
+  const panel = el("div","panel");
+  panel.appendChild(el("div","scorebig", pct + "%"));
+  panel.appendChild(el("div","scoresub",
+    right + " of " + n + " correct · " + mmss(exam.elapsed) + " elapsed"));
+
+  /* breakdown by slide */
+  const bySlide = new Map();
+  exam.items.forEach(it => {
+    const q = byId(it.id);
+    if(!bySlide.has(q.s)) bySlide.set(q.s, {n:0, r:0});
+    const b = bySlide.get(q.s); b.n++; if(it.correct) b.r++;
+  });
+  const weak = [...bySlide.entries()].filter(([,b]) => b.r < b.n).sort((a,b) =>
+    (a[1].r/a[1].n) - (b[1].r/b[1].n));
+
+  if(weak.length){
+    panel.appendChild(el("div","h","Where to focus next"));
+    const scroll = el("div","scroll");
+    const tb = el("table","bd");
+    const hr = el("tr");
+    ["Slide","Score"].forEach((h,i) => {
+      const th = el("th", i ? "num" : null, h); hr.appendChild(th);
+    });
+    const thead = document.createElement("thead"); thead.appendChild(hr); tb.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    weak.forEach(([s,b]) => {
+      const tr = el("tr");
+      tr.appendChild(el("td", null, s + " — " + (TITLES[s] || "")));
+      tr.appendChild(el("td","num", b.r + "/" + b.n));
+      tbody.appendChild(tr);
+    });
+    tb.appendChild(tbody);
+    scroll.appendChild(tb);
+    panel.appendChild(scroll);
+  } else {
+    panel.appendChild(el("p","sub","Clean sweep — nothing missed on this one."));
+  }
+
+  const bar = el("div","poolbar");
+  const again = el("button","btn","Build another exam");
+  again.addEventListener("click", () => setMode("exam"));
+  bar.appendChild(again);
+  const retry = el("button","btn ghost","Retake the ones I missed");
+  retry.disabled = right === n;
+  retry.addEventListener("click", () => {
+    const ids = exam.items.filter(it => !it.correct).map(it => it.id);
+    exam = { items: shuffle(ids).map(id => ({id, state:{}, flagged:false})),
+             i:0, started:Date.now(), submitted:false };
+    viewExam();
+    window.scrollTo({top:0});
+  });
+  bar.appendChild(retry);
+  panel.appendChild(bar);
+  app.appendChild(panel);
+
+  /* full review */
+  app.appendChild(el("h2", null, "Review every question"));
+  const note = el("p","sub","Your answer is marked; the correct answer is outlined in green.");
+  note.style.marginBottom = "1.1rem";
+  app.appendChild(note);
+  exam.items.forEach((it, idx) => {
+    const q = byId(it.id);
+    app.appendChild(renderQuestion(q, {
+      mode: "review", label: String(idx+1), showSlide: true, state: it.state
+    }));
+  });
+}
+
+
+/* ---------------- REFERENCE TABS (ANA provisions, patient bill of rights) ---------------- */
+function refView(opts){
+  const app = document.getElementById("app");
+  app.textContent = "";
+  const pairs = opts.pairs;
+
+  const head = el("section","slide");
+  head.appendChild(el("h2", null, opts.heading));
+  head.appendChild(el("p","meta", opts.label + " · " + plural(pairs.length, opts.noun)));
+  head.appendChild(el("p","lede", opts.intro));
+  app.appendChild(head);
+
+  /* ---- matching drill, five at a time ---- */
+  const drill = el("section","slide");
+  drill.appendChild(el("h2", null, "Matching drill"));
+  drill.appendChild(el("p","meta","Five at a time, reshuffled each round."));
+  const holder = el("div"); drill.appendChild(holder);
+  const again = el("button","btn small","Shuffle a new round");
+  again.type = "button";
+  again.addEventListener("click", () => { buildRound(); window.scrollTo({top:drill.offsetTop - 12}); });
+  drill.appendChild(again);
+  app.appendChild(drill);
+
+  function buildRound(){
+    holder.textContent = "";
+    const idx = shuffle([...Array(pairs.length).keys()]);
+    for(let start = 0; start < idx.length; start += 5){
+      const chunk = idx.slice(start, start + 5);
+      if(chunk.length < 2) break;
+      holder.appendChild(drillCard(chunk.map(i => pairs[i]), (start / 5) + 1));
+    }
+  }
+
+  function drillCard(set, n){
+    const card = el("article","q");
+    const h = el("div","qhead");
+    h.appendChild(el("span","qnum", "Set " + n));
+    h.appendChild(el("span","qtype","Matching"));
+    card.appendChild(h);
+    card.appendChild(el("p","stem", opts.prompt));
+
+    const order = shuffle([...Array(set.length).keys()]);
+    const bank = el("div","bank");
+    bank.appendChild(el("div","lbl","Answer bank"));
+    const ol = el("ol"); ol.type = "A";
+    order.forEach(i => ol.appendChild(el("li", null, set[i][1])));
+    bank.appendChild(ol);
+    card.appendChild(bank);
+
+    const rows = [];
+    const list = el("div","pairs");
+    set.forEach((pair, i) => {
+      const row = el("div","pair");
+      row.appendChild(el("span","prompt", (i + 1) + ". " + pair[0]));
+      const sel = el("select");
+      sel.setAttribute("aria-label","Match for " + pair[0]);
+      const ph = el("option", null, "—"); ph.value = "";
+      sel.appendChild(ph);
+      order.forEach((_, pos) => {
+        const op = el("option", null, LETTERS[pos]); op.value = LETTERS[pos];
+        sel.appendChild(op);
+      });
+      const verdict = el("span","verdict","");
+      row.appendChild(sel); row.appendChild(verdict);
+      list.appendChild(row);
+      rows.push({row, sel, verdict, want: LETTERS[order.indexOf(i)], def: pair[1]});
+    });
+    card.appendChild(list);
+
+    const btn = el("button","btn small","Check matches");
+    btn.type = "button";
+    btn.addEventListener("click", () => {
+      if(btn.disabled) return;
+      if(rows.every(r => r.sel.value === "")) return;
+      btn.disabled = true; btn.textContent = "Answer shown"; btn.classList.add("ghost");
+      let right = 0;
+      rows.forEach(r => {
+        r.sel.disabled = true;
+        if(r.sel.value === r.want){ r.row.classList.add("ok"); r.verdict.textContent = r.want; right++; }
+        else { r.row.classList.add("no"); r.verdict.textContent = "→ " + r.want; }
+      });
+      const rat = el("div","rat");
+      rat.appendChild(el("span","ans", right + " of " + rows.length + " correct. "));
+      rat.appendChild(document.createTextNode(
+        set.map(p => p[0] + " \u2014 " + p[1]).join("   ")));
+      card.appendChild(rat);
+    });
+    card.appendChild(btn);
+    return card;
+  }
+  buildRound();
+
+  /* ---- the full list ---- */
+  const glos = el("section","slide");
+  glos.appendChild(el("h2", null, opts.listHeading));
+  const bar = el("div","toolbar");
+  const lab = el("label", null, "Filter"); lab.setAttribute("for","refFilter");
+  const box = el("input"); box.id = "refFilter"; box.type = "search";
+  box.setAttribute("placeholder", opts.placeholder);
+  bar.appendChild(lab); bar.appendChild(box);
+  const toggle = el("button","chip","Hide definitions");
+  toggle.setAttribute("aria-pressed","false");
+  bar.appendChild(toggle);
+  glos.appendChild(bar);
+
+  const defs = el("div","glossary");
+  const entries = pairs.map(([term, def]) => {
+    const row = el("div","gentry");
+    row.appendChild(el("div","gterm", term));
+    const d = el("div","gdef", def);
+    row.appendChild(d);
+    defs.appendChild(row);
+    return {row, d, hay: (term + " " + def).toLowerCase()};
+  });
+  glos.appendChild(defs);
+  app.appendChild(glos);
+
+  let hidden = false;
+  toggle.addEventListener("click", () => {
+    hidden = !hidden;
+    toggle.textContent = hidden ? "Show definitions" : "Hide definitions";
+    toggle.setAttribute("aria-pressed", String(hidden));
+    entries.forEach(e => { e.d.hidden = hidden; });
+  });
+  box.addEventListener("input", () => {
+    const t = box.value.trim().toLowerCase();
+    entries.forEach(e => { e.row.hidden = t && !e.hay.includes(t); });
+  });
+}
+
+function viewTerms(){
+  refView({
+    heading: "ANA Code of Ethics",
+    label: "Slides 8-11",
+    noun: "provision",
+    intro: "All ten provisions of the 2025 ANA Code of Ethics for Nurses, with what each one covers. You are not expected to memorize these for the exam, so they live here rather than in the question bank. Drill the numbers below, then read the full list.",
+    prompt: "Match each provision number to what it says.",
+    listHeading: "All ten provisions",
+    placeholder: "Search a provision",
+    pairs: ANA
+  });
+}
+function viewDims(){
+  refView({
+    heading: "Patient Bill of Rights",
+    label: "Slide 14",
+    noun: "right",
+    intro: "All eight rights from the newest version of the Bill of Rights of the US Advisory Commission on Consumer Protection and Quality in the Healthcare Industry. Note it is eight, not seven. You need to know what each one is rather than its specifics, so they live here. Drill them below, then read the full list.",
+    prompt: "Match each right to what it means.",
+    listHeading: "All eight rights",
+    placeholder: "Search a right",
+    pairs: RIGHTS
+  });
+}
+
+/* ---------------- mode switching ---------------- */
+function setMode(m){
+  document.querySelectorAll(".mode").forEach(b =>
+    b.setAttribute("aria-selected", String(b.dataset.mode === m)));
+  if(m === "exam") viewExamSetup();
+  else if(m === "terms") viewTerms();
+  else if(m === "dims") viewDims();
+  else viewStudy();
+  window.scrollTo({top:0});
+}
+document.querySelectorAll(".mode").forEach(b =>
+  b.addEventListener("click", () => setMode(b.dataset.mode)));
+
+document.getElementById("wipe").addEventListener("click", () => {
+  if(!confirm("Clear your attempted-question history and exam scores on this device?")) return;
+  seen = new Set(); missed = new Set(); runs = [];
+  persist();
+  setMode(document.querySelector('.mode[aria-selected="true"]').dataset.mode);
+});
+
+document.getElementById("total").textContent = QUESTIONS.length;
+setMode("study");
+</script>
+</body>
+</html>
